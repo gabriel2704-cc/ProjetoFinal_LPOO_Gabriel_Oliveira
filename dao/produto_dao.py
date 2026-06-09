@@ -1,10 +1,7 @@
-from conexao import ConexaoBD
-from model.produto import Produto
-from fornecedor_dao import FornecedorDAO
-from conexao import ConexaoBD
-from fornecedor_dao import FornecedorDAO
 from dao.conexao import ConexaoBD
 from dao.fornecedor_dao import FornecedorDAO
+from model.produto import Produto
+
 class ProdutoDAO:
     def __init__(self):
         self.db = ConexaoBD()

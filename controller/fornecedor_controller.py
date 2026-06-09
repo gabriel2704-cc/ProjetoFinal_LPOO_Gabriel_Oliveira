@@ -1,3 +1,4 @@
+from dao.conexao import ConexaoBD
 from dao.fornecedor_dao import FornecedorDAO
 from model.fornecedor import Fornecedor
 

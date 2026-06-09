@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg2 
 
 class ConexaoBD:
     def __init__(self):
