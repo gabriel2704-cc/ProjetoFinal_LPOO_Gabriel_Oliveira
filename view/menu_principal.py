@@ -1,3 +1,4 @@
+from dao.conexao import ConexaoBD
 import tkinter as tk
 from tkinter import ttk, messagebox
 from view.fornecedor_view import FornecedorView

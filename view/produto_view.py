@@ -7,7 +7,7 @@ class ProdutoView(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Gerenciamento de Produtos")
-        self.geometry("800 roundedx480")
+        self.geometry("800x480")
         self.controller = ProdutoController()
         self.forn_controller = FornecedorController()
         

@@ -1,4 +1,4 @@
-from interfaces import Subject
+from model.interfaces import Subject
 
 class Produto(Subject):
     def __init__(self, nome, preco, quantidade_atual, quantidade_minima=5, categoria=None, fornecedor=None, codigo=None):

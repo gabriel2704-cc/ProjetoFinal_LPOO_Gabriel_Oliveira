@@ -1,7 +1,6 @@
-from conexao import ConexaoBD
-from model.fornecedor import Fornecedor
-from conexao import ConexaoBD
 from dao.conexao import ConexaoBD
+from model.fornecedor import Fornecedor
+
 
 class FornecedorDAO:
     def __init__(self):

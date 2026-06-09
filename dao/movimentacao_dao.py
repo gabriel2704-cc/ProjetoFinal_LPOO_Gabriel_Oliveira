@@ -1,10 +1,6 @@
-from conexao import ConexaoBD
-from model.movimentacao import Movimentacao
-from produto_dao import ProdutoDAO
-from conexao import ConexaoBD
-from produto_dao import ProdutoDAO
 from dao.conexao import ConexaoBD
 from dao.produto_dao import ProdutoDAO
+from model.movimentacao import Movimentacao
 
 class MovimentacaoDAO:
     def __init__(self):
