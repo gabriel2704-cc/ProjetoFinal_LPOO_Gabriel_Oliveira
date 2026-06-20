@@ -37,9 +37,10 @@ class MovimentacaoView(tk.Toplevel):
         frame_acoes = ttk.Frame(frame_op)
         frame_acoes.grid(row=2, column=0, columnspan=4, pady=10)
         
-        ttk.Button(frame_acoes, text="📥 Registrar Entrada", command=self._registrar_entrada).pack(side="left", padx=10)
-        ttk.Button(frame_acoes, text="📤 Registrar Saída", command=self._registrar_saida).pack(side="left", padx=10)
-        ttk.Button(frame_acoes, text="📜 Ver Histórico", command=self._exibir_historico).pack(side="left", padx=10)
+        ttk.Button(frame_acoes, text="Registrar Entrada", command=self._registrar_entrada).pack(side="left", padx=10)
+        ttk.Button(frame_acoes, text="Registrar Saída", command=self._registrar_saida).pack(side="left", padx=10)
+        ttk.Button(frame_acoes, text="Ver Histórico", command=self._exibir_historico).pack(side="left", padx=10)
+        ttk.Button(frame_acoes, text="Fechar", command=self.destroy).pack(side="left", padx=10)
 
         # Painel Inferior (Seleção do Produto)
         ttk.Label(self, text="Selecione o Produto Alvo:").pack(anchor="w", padx=10, pady=2)
