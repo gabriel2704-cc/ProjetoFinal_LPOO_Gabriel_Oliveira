@@ -43,6 +43,13 @@ class FornecedorView(tk.Toplevel):
 
         ttk.Checkbutton(frame_form, text="Ativo", variable=self.status_var).grid(row=2, column=3, padx=5, pady=5, sticky="w")
 
+        # Filtro de busca (R.F. 12)
+        frame_filtro = ttk.LabelFrame(self, text=" Filtrar por Nome ou CNPJ ")
+        frame_filtro.pack(fill="x", padx=10, pady=5)
+        self.ent_busca = ttk.Entry(frame_filtro, width=30)
+        self.ent_busca.pack(side="left", padx=5, pady=5)
+        self.ent_busca.bind("<KeyRelease>", lambda event: self._filtrar())
+
         # Painel de Botões
         frame_botoes = ttk.Frame(self)
         frame_botoes.pack(fill="x", padx=10, pady=5)
@@ -51,6 +58,7 @@ class FornecedorView(tk.Toplevel):
         ttk.Button(frame_botoes, text="Salvar Edição", command=self._editar).pack(side="left", padx=5)
         ttk.Button(frame_botoes, text="Excluir", command=self._excluir).pack(side="left", padx=5)
         ttk.Button(frame_botoes, text="Limpar Campos", command=self._limpar_campos).pack(side="left", padx=5)
+        ttk.Button(frame_botoes, text="Fechar", command=self.destroy).pack(side="right", padx=5)
 
         # Tabela para Exibição
         self.tabela = ttk.Treeview(self, columns=("id", "nome", "cnpj", "email", "status"), show="headings")
@@ -68,14 +76,30 @@ class FornecedorView(tk.Toplevel):
         self.tabela.pack(fill="both", expand=True, padx=10, pady=5)
         self.tabela.bind("<<TreeviewSelect>>", self._carregar_campos_selecionados)
 
-    def _atualizar_tabela(self):
+    def _atualizar_tabela(self, lista_customizada=None):
         for i in self.tabela.get_children():
             self.tabela.delete(i)
-        for f in self.controller.listar_fornecedores():
+        fornecedores = lista_customizada if lista_customizada is not None else self.controller.listar_fornecedores()
+        for f in fornecedores:
             status_txt = "Ativo" if f.status else "Inativo"
             self.tabela.insert("", "end", values=(f.codigo, f.nome, f.cnpj, f.email, status_txt))
 
+    def _filtrar(self):
+        termo = self.ent_busca.get()
+        fornecedores_filtrados = self.controller.filtrar_fornecedores(termo)
+        self._atualizar_tabela(fornecedores_filtrados)
+
+    def _campos_obrigatorios_preenchidos(self) -> bool:
+        """Valida se todos os campos obrigatórios do cadastro foram preenchidos."""
+        if not self.txt_nome.get().strip() or not self.txt_cnpj.get().strip() \
+           or not self.txt_email.get().strip() or not self.txt_telefone.get().strip():
+            messagebox.showwarning("Campos obrigatórios", "Preencha todos os campos: Nome, CNPJ, E-mail e Telefone.")
+            return False
+        return True
+
     def _cadastrar(self):
+        if not self._campos_obrigatorios_preenchidos():
+            return
         sucesso, msg = self.controller.cadastrar_fornecedor(
             self.txt_nome.get(), self.txt_cnpj.get(), self.txt_email.get(), self.txt_telefone.get(), self.status_var.get()
         )
@@ -89,6 +113,8 @@ class FornecedorView(tk.Toplevel):
     def _editar(self):
         if not self.txt_codigo.get():
             messagebox.showwarning("Aviso", "Selecione um fornecedor na lista para editar.")
+            return
+        if not self._campos_obrigatorios_preenchidos():
             return
         sucesso, msg = self.controller.atualizar_fornecedor(
             int(self.txt_codigo.get()), self.txt_nome.get(), self.txt_cnpj.get(), self.txt_email.get(), self.txt_telefone.get(), self.status_var.get()

@@ -5,22 +5,25 @@ class ProdutoController:
     def __init__(self):
         self.produto_dao = ProdutoDAO()
 
-    def cadastrar_produto(self, nome: str, preco: float, qtd_atual: int, qtd_minima: int, categoria: str, fornecedor_obj) -> tuple[bool, str]:
+    def cadastrar_produto(self, nome: str, preco: float, qtd_atual: int, qtd_minima: int, categoria: str, descricao: str, fornecedor_obj) -> tuple[bool, str]:
         """Cadastra um produto garantindo os vínculos obrigatórios."""
         if not fornecedor_obj:
             return False, "Erro: Um produto deve obrigatoriamente possuir um Fornecedor vinculado!"
 
         novo_produto = Produto(nome=nome, preco=preco, quantidade_atual=qtd_atual, 
-                               quantidade_minima=qtd_minima, categoria=categoria, fornecedor=fornecedor_obj)
+                               quantidade_minima=qtd_minima, categoria=categoria, descricao=descricao, fornecedor=fornecedor_obj)
 
         sucesso = self.produto_dao.salvar(novo_produto)
         if sucesso:
             return True, "Produto cadastrado com sucesso!"
         return False, "Erro ao salvar produto no banco."
 
-    def atualizar_produto(self, codigo: int, nome: str, preco: float, qtd_atual: int, qtd_minima: int, categoria: str, fornecedor_obj) -> tuple[bool, str]:
+    def atualizar_produto(self, codigo: int, nome: str, preco: float, qtd_atual: int, qtd_minima: int, categoria: str, descricao: str, fornecedor_obj) -> tuple[bool, str]:
+        if not fornecedor_obj:
+            return False, "Erro: Um produto deve obrigatoriamente possuir um Fornecedor vinculado!"
+
         produto_editado = Produto(codigo=codigo, nome=nome, preco=preco, quantidade_atual=qtd_atual, 
-                                  quantidade_minima=qtd_minima, categoria=categoria, fornecedor=fornecedor_obj)
+                                  quantidade_minima=qtd_minima, categoria=categoria, descricao=descricao, fornecedor=fornecedor_obj)
 
         sucesso = self.produto_dao.atualizar(produto_editado)
         if sucesso:

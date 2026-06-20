@@ -90,6 +90,24 @@ class FornecedorDAO:
             self.db.desconectar()
         return lista_fornecedores
 
+    def contar_produtos_vinculados(self, codigo: int) -> int:
+        """Conta quantos produtos estão vinculados a este fornecedor (usado na R.N. 2)."""
+        conexao = self.db.conectar()
+        if not conexao: return 0
+
+        sql = "SELECT COUNT(*) FROM produtos WHERE fornecedor_codigo = %s;"
+        try:
+            cursor = conexao.cursor()
+            cursor.execute(sql, (codigo,))
+            total = cursor.fetchone()[0]
+            cursor.close()
+            return total
+        except Exception as e:
+            print(f"Erro ao contar produtos vinculados: {e}")
+            return 0
+        finally:
+            self.db.desconectar()
+
     def buscar_por_id(self, codigo: int) -> Fornecedor:
         """Busca um fornecedor específico pelo seu código."""
         conexao = self.db.conectar()

@@ -1,7 +1,7 @@
 from model.interfaces import Subject
 
 class Produto(Subject):
-    def __init__(self, nome, preco, quantidade_atual, quantidade_minima=5, categoria=None, fornecedor=None, codigo=None):
+    def __init__(self, nome, preco, quantidade_atual, quantidade_minima=5, categoria=None, descricao="", fornecedor=None, codigo=None):
         super().__init__()
         self.codigo = codigo
         self.nome = nome
@@ -9,6 +9,7 @@ class Produto(Subject):
         self.quantidade_atual = int(quantidade_atual)
         self.quantidade_minima = int(quantidade_minima)
         self.categoria = categoria
+        self.descricao = descricao    # R.F. 4: descrição do produto
         self.fornecedor = fornecedor  # Instância da classe Fornecedor
 
     def registrar_entrada(self, qtd: int) -> None:

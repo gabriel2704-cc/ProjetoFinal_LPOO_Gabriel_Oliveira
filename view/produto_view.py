@@ -17,6 +17,7 @@ class ProdutoView(tk.Toplevel):
         self.txt_qtd_atual = tk.StringVar()
         self.txt_qtd_minima = tk.StringVar(value="5")
         self.txt_categoria = tk.StringVar()
+        self.txt_descricao = tk.StringVar()
         
         self.lista_fornecedores_banco = []
 
@@ -50,6 +51,9 @@ class ProdutoView(tk.Toplevel):
         self.combo_fornecedor = ttk.Combobox(frame_form, state="readonly", width=32)
         self.combo_fornecedor.grid(row=3, column=1, columnspan=3, padx=5, pady=5, sticky="w")
 
+        ttk.Label(frame_form, text="Descrição:").grid(row=4, column=0, padx=5, pady=5, sticky="w")
+        ttk.Entry(frame_form, textvariable=self.txt_descricao, width=70).grid(row=4, column=1, columnspan=3, padx=5, pady=5, sticky="w")
+
         # Filtros (R.F. 11)
         frame_filtros = ttk.LabelFrame(self, text=" Filtros de Busca ")
         frame_filtros.pack(fill="x", padx=10, pady=5)
@@ -59,19 +63,28 @@ class ProdutoView(tk.Toplevel):
         self.ent_busca_nome.pack(side="left", padx=5, pady=5)
         self.ent_busca_nome.bind("<KeyRelease>", lambda event: self._filtrar())
 
+        ttk.Label(frame_filtros, text="Filtrar por Fornecedor:").pack(side="left", padx=5, pady=5)
+        self.combo_filtro_fornecedor = ttk.Combobox(frame_filtros, state="readonly", width=28)
+        self.combo_filtro_fornecedor.pack(side="left", padx=5, pady=5)
+        self.combo_filtro_fornecedor.bind("<<ComboboxSelected>>", lambda event: self._filtrar())
+
         frame_botoes = ttk.Frame(self)
         frame_botoes.pack(fill="x", padx=10, pady=5)
 
         ttk.Button(frame_botoes, text="Salvar Novo", command=self._cadastrar).pack(side="left", padx=5)
         ttk.Button(frame_botoes, text="Salvar Edição", command=self._editar).pack(side="left", padx=5)
         ttk.Button(frame_botoes, text="Excluir", command=self._excluir).pack(side="left", padx=5)
+        ttk.Button(frame_botoes, text="Limpar Campos", command=self._limpar_campos).pack(side="left", padx=5)
+        ttk.Button(frame_botoes, text="Fechar", command=self.destroy).pack(side="right", padx=5)
 
-        self.tabela = ttk.Treeview(self, columns=("id", "nome", "preco", "qtd", "qtd_min", "fornecedor"), show="headings")
+        self.tabela = ttk.Treeview(self, columns=("id", "nome", "preco", "qtd", "qtd_min", "categoria", "descricao", "fornecedor"), show="headings")
         self.tabela.heading("id", text="Cód.")
         self.tabela.heading("nome", text="Nome Produto")
         self.tabela.heading("preco", text="Preço")
         self.tabela.heading("qtd", text="Estoque")
         self.tabela.heading("qtd_min", text="Estoque Mín.")
+        self.tabela.heading("categoria", text="Categoria")
+        self.tabela.heading("descricao", text="Descrição")
         self.tabela.heading("fornecedor", text="Fornecedor")
         
         self.tabela.column("id", width=50)
@@ -79,6 +92,8 @@ class ProdutoView(tk.Toplevel):
         self.tabela.column("preco", width=80)
         self.tabela.column("qtd", width=80)
         self.tabela.column("qtd_min", width=90)
+        self.tabela.column("categoria", width=120)
+        self.tabela.column("descricao", width=200)
         self.tabela.column("fornecedor", width=180)
         self.tabela.pack(fill="both", expand=True, padx=10, pady=5)
         self.tabela.bind("<<TreeviewSelect>>", self._carregar_campos_selecionados)
@@ -87,6 +102,7 @@ class ProdutoView(tk.Toplevel):
         self.lista_fornecedores_banco = self.forn_controller.listar_fornecedores()
         nomes = [f"{f.codigo} - {f.nome}" for f in self.lista_fornecedores_banco if f.status]
         self.combo_fornecedor['values'] = nomes
+        self.combo_filtro_fornecedor['values'] = ["Todos"] + nomes
 
     def _atualizar_tabela(self, lista_customizada=None):
         for i in self.tabela.get_children():
@@ -95,11 +111,15 @@ class ProdutoView(tk.Toplevel):
         produtos = lista_customizada if lista_customizada is not None else self.controller.listar_produtos()
         for p in produtos:
             forn_nome = p.fornecedor.nome if p.fornecedor else "Não associado"
-            self.tabela.insert("", "end", values=(p.codigo, p.nome, f"R$ {p.preco:.2f}", p.quantidade_atual, p.quantidade_minima, forn_nome))
+            self.tabela.insert("", "end", values=(p.codigo, p.nome, f"R$ {p.preco:.2f}", p.quantidade_atual, p.quantidade_minima, p.categoria, p.descricao, forn_nome))
 
     def _filtrar(self):
         termo = self.ent_busca_nome.get()
-        produtos_filtrados = self.controller.filtrar_produtos(nome_parcial=termo)
+        codigo_forn = None
+        idx_forn = self.combo_filtro_fornecedor.current()
+        if idx_forn > 0:  # índice 0 é "Todos"
+            codigo_forn = self.lista_fornecedores_banco[idx_forn - 1].codigo
+        produtos_filtrados = self.controller.filtrar_produtos(nome_parcial=termo, codigo_fornecedor=codigo_forn)
         self._atualizar_tabela(produtos_filtrados)
 
     def _obter_fornecedor_selecionado(self):
@@ -108,14 +128,31 @@ class ProdutoView(tk.Toplevel):
             return self.lista_fornecedores_banco[index]
         return None
 
+    def _campos_obrigatorios_preenchidos(self) -> bool:
+        """Valida se todos os campos obrigatórios do cadastro de produto foram preenchidos."""
+        if not self.txt_nome.get().strip() or not self.txt_preco.get().strip() \
+           or not self.txt_qtd_atual.get().strip() or not self.txt_qtd_minima.get().strip() \
+           or not self.txt_categoria.get().strip() or not self.txt_descricao.get().strip() \
+           or self._obter_fornecedor_selecionado() is None:
+            messagebox.showwarning(
+                "Campos obrigatórios",
+                "Preencha todos os campos (Nome, Preço, Qtd Atual, Qtd Mínima, Categoria, Descrição) e selecione um Fornecedor."
+            )
+            return False
+        return True
+
     def _cadastrar(self):
+        if not self._campos_obrigatorios_preenchidos():
+            return
         try:
             sucesso, msg = self.controller.cadastrar_produto(
                 self.txt_nome.get(), float(self.txt_preco.get()), int(self.txt_qtd_atual.get()),
-                int(self.txt_qtd_minima.get()), self.txt_categoria.get(), self._obter_fornecedor_selecionado()
+                int(self.txt_qtd_minima.get()), self.txt_categoria.get(), self.txt_descricao.get(),
+                self._obter_fornecedor_selecionado()
             )
             if sucesso:
                 messagebox.showinfo("Sucesso", msg)
+                self._limpar_campos()
                 self._atualizar_tabela()
             else:
                 messagebox.showerror("Erro", msg)
@@ -123,24 +160,39 @@ class ProdutoView(tk.Toplevel):
             messagebox.showerror("Erro", "Preço e Quantidades devem ser numéricos!")
 
     def _editar(self):
-        if not self.txt_codigo.get(): return
+        if not self.txt_codigo.get():
+            messagebox.showwarning("Aviso", "Selecione um produto na lista para editar.")
+            return
+        if not self._campos_obrigatorios_preenchidos():
+            return
         try:
             sucesso, msg = self.controller.atualizar_produto(
                 int(self.txt_codigo.get()), self.txt_nome.get(), float(self.txt_preco.get()),
-                int(self.txt_qtd_atual.get()), int(self.txt_qtd_minima.get()), self.txt_categoria.get(), self._obter_fornecedor_selecionado()
+                int(self.txt_qtd_atual.get()), int(self.txt_qtd_minima.get()), self.txt_categoria.get(),
+                self.txt_descricao.get(), self._obter_fornecedor_selecionado()
             )
             if sucesso:
                 messagebox.showinfo("Sucesso", msg)
+                self._limpar_campos()
                 self._atualizar_tabela()
+            else:
+                messagebox.showerror("Erro", msg)
         except ValueError:
             messagebox.showerror("Erro", "Campos numéricos inválidos.")
 
     def _excluir(self):
-        if not self.txt_codigo.get(): return
+        if not self.txt_codigo.get():
+            messagebox.showwarning("Aviso", "Selecione um produto na lista para excluir.")
+            return
+        # R.N.F. 1: Pedir confirmação antes de apagar qualquer dado
         if messagebox.askyesno("Confirmação", "Excluir este produto?"):
             sucesso, msg = self.controller.excluir_produto(int(self.txt_codigo.get()))
             if sucesso:
+                messagebox.showinfo("Sucesso", msg)
+                self._limpar_campos()
                 self._atualizar_tabela()
+            else:
+                messagebox.showerror("Erro", msg)
 
     def _carregar_campos_selecionados(self, event):
         item = self.tabela.selection()
@@ -155,7 +207,18 @@ class ProdutoView(tk.Toplevel):
             prod = self.controller.produto_dao.buscar_por_id(int(valores[0]))
             if prod and prod.fornecedor:
                 self.txt_categoria.set(prod.categoria)
+                self.txt_descricao.set(prod.descricao or "")
                 for i, f in enumerate(self.lista_fornecedores_banco):
                     if f.codigo == prod.fornecedor.codigo:
                         self.combo_fornecedor.current(i)
                         break
+
+    def _limpar_campos(self):
+        self.txt_codigo.set("")
+        self.txt_nome.set("")
+        self.txt_preco.set("")
+        self.txt_qtd_atual.set("")
+        self.txt_qtd_minima.set("5")
+        self.txt_categoria.set("")
+        self.txt_descricao.set("")
+        self.combo_fornecedor.set("")

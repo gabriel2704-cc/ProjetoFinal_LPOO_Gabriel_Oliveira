@@ -14,6 +14,11 @@ class MenuPrincipal(tk.Tk):
         # Centralização da janela na tela principal
         self.eval('tk::PlaceWindow . center')
         
+        # Mantém referência das janelas filhas para não abrir duplicadas
+        self._janela_fornecedores = None
+        self._janela_produtos = None
+        self._janela_movimentacoes = None
+        
         self._criar_menu_superior()
         self._criar_corpo_boas_vindas()
 
@@ -40,34 +45,45 @@ class MenuPrincipal(tk.Tk):
         self.config(menu=barra_menus)
 
     def _criar_corpo_boas_vindas(self):
-        lbl_titulo = ttk.Label(self, text="Controle de Estoque Desktop", font=("Arial", 16, "bold"))
+        lbl_titulo = ttk.Label(self, text="Controle de Estoque", font=("Arial", 16, "bold"))
         lbl_titulo.pack(pady=40)
 
         lbl_desc = ttk.Label(
             self, 
-            text="Utilize a barra de menus superior para navegar\nentre os módulos de cadastro e movimentação física.",
+            text="Utilize a barra de menus superior para navegar.",
             justify="center", font=("Arial", 11)
         )
         lbl_desc.pack(pady=10)
 
     def _abrir_fornecedores(self):
-        FornecedorView(self)
+        if self._janela_fornecedores is not None and self._janela_fornecedores.winfo_exists():
+            self._janela_fornecedores.lift()
+            self._janela_fornecedores.focus_force()
+            return
+        self._janela_fornecedores = FornecedorView(self)
 
     def _abrir_produtos(self):
-        ProdutoView(self)
+        if self._janela_produtos is not None and self._janela_produtos.winfo_exists():
+            self._janela_produtos.lift()
+            self._janela_produtos.focus_force()
+            return
+        self._janela_produtos = ProdutoView(self)
 
     def _abrir_movimentacoes(self):
-        MovimentacaoView(self)
+        if self._janela_movimentacoes is not None and self._janela_movimentacoes.winfo_exists():
+            self._janela_movimentacoes.lift()
+            self._janela_movimentacoes.focus_force()
+            return
+        self._janela_movimentacoes = MovimentacaoView(self)
 
     def _exibir_tela_sobre(self):
         """R.F. 13: Exibe metadados de autoria da APS e LPOO."""
         dados_sobre = (
-            "📦 Sistema de Controle de Estoque e Fornecedores\n\n"
-            "Descrição: Aplicação desktop offline para gerenciamento de insumos.\n"
+            "Sistema de Controle de Estoque e Fornecedores\n\n"
+            "Descrição: Aplicação para gerenciamento de almoxarifado.\n"
             "Responsável: Gabriel de Oliveira\n"
             "Disciplina: Análise e Projeto de Sistemas (APS) +\n"
             "            Linguagem e Programação Orientada a Objetos (LPOO)\n"
             "Curso: Bacharelado em Ciência da Computação\n"
-            "Semestre/Ano: 1º Semestre / 2026"
         )
         messagebox.showinfo("Sobre o Projeto", dados_sobre)

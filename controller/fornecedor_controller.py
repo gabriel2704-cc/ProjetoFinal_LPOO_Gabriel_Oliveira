@@ -46,12 +46,24 @@ class FornecedorController:
         return False, "Erro ao atualizar dados do fornecedor."
 
     def excluir_fornecedor(self, codigo: int) -> tuple[bool, str]:
-        """R.N. 2: Impede a exclusão se houver produtos vinculados."""
+        """R.N. 2: Impede a exclusão se houver produtos vinculados, informando a quantidade."""
+        total_vinculados = self.fornecedor_dao.contar_produtos_vinculados(codigo)
+        if total_vinculados > 0:
+            return False, f"Não é possível excluir! Existem {total_vinculados} produto(s) vinculado(s) a este fornecedor."
+
         sucesso = self.fornecedor_dao.excluir(codigo)
         if sucesso:
             return True, "Fornecedor removido com sucesso!"
-        # Se a DAO retornar False, significa que a restrição ON DELETE RESTRICT barrou a operação
-        return False, "Não é possível excluir! Existem produtos vinculados a este fornecedor."
+        return False, "Erro interno ao excluir fornecedor."
 
     def listar_fornecedores(self) -> list[Fornecedor]:
         return self.fornecedor_dao.listar()
+
+    def filtrar_fornecedores(self, termo: str = "") -> list[Fornecedor]:
+        """R.F. 12: Filtra fornecedores por nome ou CNPJ (busca parcial)."""
+        todos = self.fornecedor_dao.listar()
+        if not termo:
+            return todos
+
+        termo_lower = termo.lower()
+        return [f for f in todos if termo_lower in f.nome.lower() or termo_lower in f.cnpj.lower()]
