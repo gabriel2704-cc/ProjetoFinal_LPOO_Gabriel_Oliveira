@@ -42,9 +42,19 @@ O detalhamento completo concernente ao levantamento de requisitos, diagramas de 
 
 ### Desafios Enfrentados e Resoluções Técnicas
 
+- Problemas na integração com o banco de dados: A conexão com o PostgreSQL usando a biblioteca psycopg2 exigiu um cuidado extra para gerenciar o ciclo de vida das conexões e evitar travamentos.
+
+- Implementação do padrão Observer: O desafio foi atualizar as telas do sistema automaticamente sempre que os dados mudavam sem bagunçar a arquitetura MVC, resolvido usando o Observer para disparar essas notificações com baixo acoplamento.
+
+- Criação de um sistema de log: Foi necessário criar uma estrutura centralizada para capturar exceções e erros, gerando um histórico confiável de auditoria sem poluir o código das regras de negócio.
 
 ### Principais Aprendizados Obtidos
 
+- Evolução a partir do projeto da locadora: O projeto de uma locadora de veículos desenvolvido anteriormente em aula serviu como a base principal para entender o fluxo do MVC, facilitando a transição para este projeto.
+
+- Importância da modularização: Dividir o sistema no modelo CRUD em pacotes organizados provou na prática como fica muito mais fácil dar manutenção e encontrar bugs no código.
+
+- Maturidade com ferramentas de desenvolvimento: O processo trouxe domínio real no uso de ambientes virtuais (venv) e controle de versão com Git, aprendendo a lidar com conflitos de caminhos de importação e quebras de linha entre sistemas operacionais.
 ---
 
 ## Declaração de Uso de Inteligência Artificial

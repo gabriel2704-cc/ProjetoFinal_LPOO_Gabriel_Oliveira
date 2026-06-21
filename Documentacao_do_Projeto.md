@@ -62,7 +62,7 @@ O sistema é capaz de registrar todas as entradas e saídas de mercadorias no ba
 | **R.N.F. 1** | O sistema deve conter uma navegação simples por menus, e deve pedir confirmação do usuário antes de apagar qualquer dado. | Usabilidade | Sistema | Alta | R.F. 1, R.F. 4 |
 | **R.N.F. 2** | As telas, buscas e registros de dados devem carregar rápido, sem travamentos perceptíveis para o usuário durante o uso diário. | Desempenho | Sistema | Alta | |
 | **R.N.F. 3** | O sistema deve garantir que as informações fiquem salvas e organizadas, cancelando e desfazendo a operação se acontecer algum erro no meio do caminho. | Confiabilidade | Sistema | Alta | |
-| **R.N.F. 4** | O código do projeto deve ser organized de forma limpa e dividida, facilitando a manutenção ou a troca de componentes se o sistema precisar crescer no futuro. | Manutenibilidade | Sistema | Alta | |
+| **R.N.F. 4** | O código do projeto deve ser organizado de forma limpa e dividida, facilitando a manutenção ou a troca de componentes se o sistema precisar crescer no futuro. | Manutenibilidade | Sistema | Alta | |
 | **R.N.F. 5** | O programa deve funcionar de forma local, rodando direto no computador do usuário sem precisar estar conectado à internet. | Portabilidade | Sistema | Alta | |
 
 ---
